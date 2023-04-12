@@ -8,13 +8,14 @@ import { User } from './users/user.entity';
 import { Report } from './reports/report.entity';
 
 @Module({
-  imports: [TypeOrmModule.forRoot({
+  imports: [TypeOrmModule.forRoot({  // for database
     type: 'sqlite',
     database: 'db.sqlite',
     entities: [User, Report],
-    synchronize: true,
+    synchronize: true, // modify table structure(create, drop, add column ...) , only for development
   }), UsersModule, ReportsModule],
   controllers: [AppController],
   providers: [AppService],
 })
+
 export class AppModule {}
