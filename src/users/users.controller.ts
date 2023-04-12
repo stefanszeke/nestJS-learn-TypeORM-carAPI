@@ -1,10 +1,13 @@
-import { Body, Controller, Post, Get, Patch, Delete, Param, Query, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Post, Get, Patch, Delete, Param, Query, NotFoundException, UseInterceptors } from '@nestjs/common';
 import { createUserDTO } from './dtos/create-user.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDTO } from './dtos/update-user.dto';
+import { Serialize } from 'src/interceptors/serialize.interceptor';
+import { UserDTO } from './dtos/user.dto';
 
 
 @Controller('auth')
+@Serialize(UserDTO) // apply to all routes in this controller
 export class UsersController {
 
   constructor(private userService: UsersService) { }
@@ -14,12 +17,14 @@ export class UsersController {
     this.userService.create(body.email, body.password);
   }
 
+  // @Serialize(UserDTO) apply to this route
   @Get(':id')// in nest param is string
   async findUser(@Param('id') id: string) {
     const user = await this.userService.findOne(+id);
     if (!user) { throw new NotFoundException('user not found') }
     return user;
   }
+
 
   @Get()
   findAllUsers(@Query('email') email: string) {
