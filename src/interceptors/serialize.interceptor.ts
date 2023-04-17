@@ -25,7 +25,7 @@ export class SerializeInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
 
     const request = context.switchToHttp().getRequest();
-    console.log("request: " + request.url, request.method, request.body);
+    // console.log("request: " + request.url, request.method, request.body);
 
 
     // Run something before a request is handled by the request handler
@@ -33,16 +33,23 @@ export class SerializeInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       map((data: any) => {
+        // console.log("data: " + JSON.stringify(data));
+        // console.log("dto: " + this.dto);
+
         // run something before the response is sent out
         // console.log('I am running before the response is sent out');
 
-        return plainToInstance(this.dto, data, { 
-          excludeExtraneousValues: true,
-        })
+        const serializedData = plainToInstance(this.dto, data, { excludeExtraneousValues: true });
+        // console.log("serializedData: " + JSON.stringify(serializedData));
+
+        return serializedData;
       })
     );
   }
 }
+
+// context is an object that contains information about the request
+// next is a function that we call to pass the request to the next interceptor
 
 // plainToInstance is a function from class-transformer,
 // it takes a class and an object and returns an instance of that class

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Patch, Delete, Param, Query, NotFoundException, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Post, Get, Patch, Delete, Param, Query, NotFoundException, Session } from '@nestjs/common';
 import { createUserDTO } from './dtos/create-user.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDTO } from './dtos/update-user.dto';
@@ -7,20 +7,35 @@ import { UserDTO } from './dtos/user.dto';
 import { AuthService } from './auth.service';
 
 
-@Controller('auth')
+@Controller('auth/')
 @Serialize(UserDTO) // apply to all routes in this controller
 export class UsersController {
 
   constructor(private userService: UsersService, private authService: AuthService) { }
 
+  @Get('testMe')
+  testMe(@Session() session: any) {
+    return this.userService.findOne(session.userId);
+  }
+
+
   @Post('signup')
-  createUser(@Body() body: createUserDTO) {
-    return this.authService.signup(body.email, body.password);
+  async createUser(@Body() body: createUserDTO, @Session() session: any) {
+    const user = await this.authService.signup(body.email, body.password);
+    session.userId = user.id;
+    return user;
   }
 
   @Post('signin')
-  signin(@Body() body: createUserDTO) {
-    return this.authService.signin(body.email, body.password);
+  async signin(@Body() body: createUserDTO, @Session() session: any) {
+    const user = await this.authService.signin(body.email, body.password);
+    session.userId = user.id;
+    return user;
+  }
+
+  @Post('signout')
+  signout(@Session() session: any) {
+    session.userId = null;
   }
 
   // @Serialize(UserDTO) apply to this route
@@ -57,3 +72,14 @@ export class UsersController {
 // in controller, inject service
 // first you make the services where you use the repository and also use some logic.
 // these services can be accessed through the controllers.
+
+
+// @Get('colors/:color')
+// setColor(@Param('color') color: string, @Session() session: any) {
+//   session.color = color;
+// }
+
+// @Get('colors')
+// getColor(@Session() session: any) {
+//   return session.color;
+// }

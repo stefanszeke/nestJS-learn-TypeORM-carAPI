@@ -11,7 +11,7 @@ export class AuthService {
   constructor(private usersService: UsersService) { }
 
   async signup(email: string, password: string) {
-    console.log(this.usersService)
+    // console.log(this.usersService)
     // see if email exists
     const users = await this.usersService.findByEmail(email);
 
