@@ -1,22 +1,28 @@
-import { Body, Controller, Post, Get, Patch, Delete, Param, Query, NotFoundException, Session } from '@nestjs/common';
+import { Body, Controller, Post, Get, Patch, Delete, Param, Query, NotFoundException, Session, UseGuards } from '@nestjs/common';
 import { createUserDTO } from './dtos/create-user.dto';
 import { UsersService } from './users.service';
 import { UpdateUserDTO } from './dtos/update-user.dto';
 import { Serialize } from 'src/interceptors/serialize.interceptor';
 import { UserDTO } from './dtos/user.dto';
 import { AuthService } from './auth.service';
+import { CurrentUser } from './decoratora/current-user.decorator';
+import { User } from './user.entity';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 
 @Controller('auth/')
-@Serialize(UserDTO) // apply to all routes in this controller
+@Serialize(UserDTO) // apply to all routes in this 
 export class UsersController {
 
   constructor(private userService: UsersService, private authService: AuthService) { }
 
   @Get('testMe')
-  testMe(@Session() session: any) {
-    return this.userService.findOne(session.userId);
+  @UseGuards(AuthGuard)
+  // interceptors run before the request goes to the controller
+  testMe(@CurrentUser() user: User) {
+    return user;
   }
+  // interceptors run after the request goes to the controller
 
 
   @Post('signup')
@@ -48,6 +54,7 @@ export class UsersController {
 
 
   @Get()
+  @UseGuards(AuthGuard)
   findAllUsers(@Query('email') email: string) {
     return this.userService.find(email);
   }

@@ -24,14 +24,11 @@ export class SerializeInterceptor implements NestInterceptor {
   
   intercept(context: ExecutionContext, next: CallHandler<any>): Observable<any> | Promise<Observable<any>> {
 
-    const request = context.switchToHttp().getRequest();
-    // console.log("request: " + request.url, request.method, request.body);
-
-
     // Run something before a request is handled by the request handler
     // console.log('I am running before the handler');
+    const request = context.switchToHttp().getRequest();    
 
-    return next.handle().pipe(
+    return next.handle().pipe( // runs after the request goes to the controller. and before the response is sent out
       map((data: any) => {
         // console.log("data: " + JSON.stringify(data));
         // console.log("dto: " + this.dto);
@@ -40,7 +37,6 @@ export class SerializeInterceptor implements NestInterceptor {
         // console.log('I am running before the response is sent out');
 
         const serializedData = plainToInstance(this.dto, data, { excludeExtraneousValues: true });
-        // console.log("serializedData: " + JSON.stringify(serializedData));
 
         return serializedData;
       })
