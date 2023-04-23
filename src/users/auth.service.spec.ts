@@ -60,7 +60,7 @@ describe('*** AuthService Tests ***', () => {
   });
 
   it('Throws an error if user signs up with email that is in use', async () => {
-    fakeUsersService.findByEmail = () => Promise.resolve([{ id: 1, email: "test@mail.com", password: "123" } as User])
+    await service.signup("test@mail.com", "123");
 
     // Use try-catch to catch the exception thrown by the signup() method
     let exception;
@@ -80,14 +80,12 @@ describe('*** AuthService Tests ***', () => {
   })
 
   it('Throws an error if signin is called with an unused email', async () => {
-    fakeUsersService.findByEmail = () => Promise.resolve([]);
-
     await expect(service.signin("weee@mail.com", "")).rejects.toThrow(BadRequestException);
     await expect(service.signin("weee@mail.com", "")).rejects.toThrow('invalid credentials');
   })
 
   it('Throws an error if an invalid password is provided', async () => {
-    fakeUsersService.findByEmail = () => Promise.resolve([{ id: 1, email: "test@mail.com", password: "123" } as User])
+    await service.signup("test@mail.com", "123");
 
     await expect(service.signin("test@mail.com", "1234")).rejects.toThrow(BadRequestException);
     await expect(service.signin("test@mail.com", "1234")).rejects.toThrow('invalid credentials');
